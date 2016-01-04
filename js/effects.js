@@ -390,6 +390,9 @@ function changeEffect() {
         case 21: // Apollo effect
             currentEffectNode = createApolloEffect();
             break;
+        case 22: // WebAudioHaptics Hello World
+            currentEffectNode = createEnvelopeFollower();
+            break;
         default:
             break;
     }
