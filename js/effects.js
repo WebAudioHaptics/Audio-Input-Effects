@@ -391,7 +391,7 @@ function changeEffect() {
             currentEffectNode = createApolloEffect();
             break;
         case 22: // WebAudioHaptics Hello World
-            currentEffectNode = createEnvelopeFollower();
+            currentEffectNode = createWebAudioHapticsHelloWorld();
             break;
         default:
             break;
@@ -784,6 +784,44 @@ function createEnvelopeFollower() {
     waveshaper.connect(lpf1);
     lpf1.connect(wetGain);
     return waveshaper;
+}
+
+function createWebAudioHapticsHelloWorld() {
+    var inputNode = audioContext.createGain();
+    var rectifier = audioContext.createWaveShaper();
+
+    var curve = new Float32Array(65536);
+    for (var i=-32768; i<32768; i++)
+        curve[i+32768] = ((i>0)?i:-i)/32768;
+
+    ngFollower = audioContext.createBiquadFilter();
+    ngFollower.type = "lowpass";
+    ngFollower.frequency.value = 10.0;
+
+    rectifier.curve = curve;
+    rectifier.connect(ngFollower);
+
+    ngGate = audioContext.createWaveShaper();
+    ngGate.curve = curve;
+
+    ngFollower.connect(ngGate);
+
+    var gateGain = audioContext.createGain();
+    gateGain.gain.value = 0.0;
+    ngGate.connect( gateGain.gain );
+
+    var osc = audioContext.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = 120.0;
+    osc.start(0);
+    osc.connect(gateGain);
+
+    gateGain.connect( wetGain);
+
+    inputNode.connect(rectifier);
+    inputNode.connect(gateGain);
+
+    return inputNode;
 }
 
 function createAutowah() {
